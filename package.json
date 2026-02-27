@@ -1,0 +1,29 @@
+{
+  "name": "neon-dash-ultra",
+  "version": "1.0.0",
+  "description": "NEON DASH ULTRA — neon platformer",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.neondashultra.app",
+    "productName": "NEON DASH ULTRA",
+    "directories": { "output": "dist" },
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "icon.png"
+    },
+    "files": [
+      "main.js",
+      "platformer.html",
+      "manifest.json",
+      "icon.png"
+    ]
+  }
+}

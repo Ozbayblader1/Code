@@ -1,0 +1,10 @@
+{
+  "name": "NEON DASH ULTRA",
+  "short_name": "NEON DASH",
+  "description": "A neon platformer game",
+  "start_url": "platformer.html",
+  "display": "standalone",
+  "background_color": "#000011",
+  "theme_color": "#00ccff",
+  "orientation": "landscape"
+}
