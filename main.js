@@ -7,7 +7,7 @@ function createWindow() {
     height: 650,
     minWidth: 500,
     minHeight: 380,
-    title: 'NEON DASH ULTRA',
+    title: 'NEON PLATFORMER',
     backgroundColor: '#000011',
     autoHideMenuBar: true,
     icon: path.join(__dirname, 'icon.png'),

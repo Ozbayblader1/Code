@@ -1,6 +1,6 @@
 {
-  "name": "NEON DASH ULTRA",
-  "short_name": "NEON DASH",
+  "name": "NEON PLATFORMER",
+  "short_name": "NEON PLT",
   "description": "A neon platformer game",
   "start_url": "platformer.html",
   "display": "standalone",

@@ -1,6 +1,6 @@
 @echo off
 cd /d "%~dp0"
-echo  NEON DASH ULTRA - Build App
+echo  NEON PLATFORMER - Build App
 echo ================================
 echo.
 
@@ -30,6 +30,6 @@ if %errorlevel% neq 0 ( echo  Build failed. & pause & exit /b 1 )
 
 echo.
 echo  Done! Your installer is in the dist\ folder.
-echo  Look for: NEON DASH ULTRA Setup.exe
+echo  Look for: NEON PLATFORMER Setup.exe
 echo.
 pause
