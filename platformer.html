@@ -2337,13 +2337,13 @@ function loadLevel(idx){
   const d=LEVEL_DATA[idx];
   platforms=d.platforms;movingPlatforms=d.movingPlatforms||[];
   spikes=d.spikes||[];killBricks=d.killBricks||[];
-  enemies=d.enemies||[];enemies.forEach(e=>{e.x=e.startX;e.direction=1;e._t=0;e.poisoned=false;e.poisonTimer=0;e.frozen=false;e.flashTimer=0;});
+  enemies=d.enemies||[];const _dm=getDiffEnemyMult();enemies.forEach(e=>{e.x=e.startX;e.direction=1;e._t=0;e.poisoned=false;e.poisonTimer=0;e.frozen=false;e.flashTimer=0;if(!e.baseSpd)e.baseSpd=e.spd;e.spd=e.baseSpd*_dm;});
   coins=d.coins.map(c=>{c.magnetized=false;c.voidPull=false;c.collected=false;return c;});
   goal=d.goal;secretDoors=d.secretDoors||[];iceZones=d.iceZones||[];
   inSecretRoom=false;currentSecretRoom=null;currentSecretRoomData=null;
   const doorDefs=d.secretDoors.map((door,di)=>({door,roomX:d.secretRoomX+(di*500),roomY:d.secretRoomY}));
   buildSecretRooms(doorDefs);
-  resetLava();if(d.lavaRise)startLava(d.lavaSpd);
+  resetLava();if(d.lavaRise){const _lm={easy:0.65,medium:1,hard:1.35,hardcore:1.75}[difficulty]||1;startLava(d.lavaSpd*_lm);}
   springPads=[];powerUps=[];tpPads=[];stickyPads=[];onSticky=false;puSpeedActive=false;puSpeedLeft=0;
   player.x=100;player.y=2750;player.velY=0;player.velX=0;
   player.jumpsLeft=3;player.angle=0;player.squash=1;player.squashVel=0;
@@ -2863,10 +2863,7 @@ window.addEventListener('click',e=>{
       }else{catShopOffer=null;}
       gameState='shop';
     }
-    if(x>=10&&x<=105&&y>=68&&y<=108)saveGame();
-    if(x>=112&&x<=207&&y>=68&&y<=108)hardReset();
-    if(x>=215&&x<=310&&y>=68&&y<=108){window.close();}
-    if(x>=318&&x<=473&&y>=68&&y<=108){gameState='settings';return;}
+    if(x>=8&&x<=146&&y>=54&&y<=88){gameState='settings';return;}
     // Paw print secret button — bottom-left corner
     if(x>=0&&x<=40&&y>=H-34&&y<=H){initCats();gameState='cats';stopMusic();if(musicOn){initAudio();playLevelMusic(14);}}
     // Level editor button — bottom right
@@ -2897,6 +2894,10 @@ window.addEventListener('click',e=>{
     if(x>=W/2+18&&x<=W/2+228&&y>=214&&y<=264){sfxOn=!sfxOn;saveGame(true);}
     // Back button
     if(x>=W/2-72&&x<=W/2+72&&y>=446&&y<=494){gameState='home';}
+    // Reset Data button
+    if(x>=W/2-310&&x<=W/2-150&&y>=446&&y<=494){hardReset();gameState='home';}
+    // Exit App button
+    if(x>=W/2+150&&x<=W/2+310&&y>=446&&y<=494){window.close();}
     return;
   }
   if(gameState==='storyMap'){
@@ -3447,7 +3448,10 @@ function update(){
     }
     playSFX('levelup');
     if(gameMode==='story'){
+      const _spts=Math.round((150+(currentLevel*100))*getDiffScoreMult());score+=_spts;
+      floatTexts.push({x:W/2,y:H/2,text:'+'+_spts,color:'#FFD700',life:80,maxLife:80});
       if(!completedLevels.includes(currentLevel))completedLevels.push(currentLevel);
+      if(score>bestScores.story){bestScores.story=score;}
       saveGame(true);
       if(currentLevel<LEVEL_DATA.length-1)loadLevel(currentLevel+1);
       else{gameWon=true;stopMusic();}
@@ -4677,13 +4681,23 @@ function drawSettings(){
   ctx.fillText('HARDCORE MODE has no endless restart — game over means starting over',W/2,400);
   ctx.fillText('Higher difficulty = more score · Unlock best scores by playing each mode',W/2,414);
   ctx.restore();
-  // Back button
-  const bk={x:W/2-72,y:446,w:144,h:48};
+  // Bottom row: RESET DATA | BACK | EXIT APP
+  // RESET DATA button
+  ctx.save();ctx.shadowColor='#ff2244';ctx.shadowBlur=10;ctx.fillStyle='rgba(60,0,10,.9)';ctx.beginPath();ctx.roundRect(W/2-310,446,160,48,9);ctx.fill();
+  ctx.strokeStyle='rgba(255,50,80,.45)';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(W/2-310,446,160,48,9);ctx.stroke();
+  ctx.fillStyle='#ff8899';ctx.font='bold 10px Orbitron';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('⚠ RESET DATA',W/2-230,470);ctx.restore();
+  // BACK button
   ctx.save();ctx.shadowColor='#00ccff';ctx.shadowBlur=14;
-  ctx.fillStyle='rgba(0,25,70,.9)';ctx.beginPath();ctx.roundRect(bk.x,bk.y,bk.w,bk.h,9);ctx.fill();
-  ctx.strokeStyle='rgba(0,180,255,.55)';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(bk.x,bk.y,bk.w,bk.h,9);ctx.stroke();
+  ctx.fillStyle='rgba(0,25,70,.9)';ctx.beginPath();ctx.roundRect(W/2-72,446,144,48,9);ctx.fill();
+  ctx.strokeStyle='rgba(0,180,255,.55)';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(W/2-72,446,144,48,9);ctx.stroke();
   ctx.fillStyle='#88ddff';ctx.font='bold 12px Orbitron';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText('◀ BACK',bk.x+bk.w/2,bk.y+bk.h/2);ctx.restore();
+  ctx.fillText('◀ BACK',W/2,470);ctx.restore();
+  // EXIT APP button
+  ctx.save();ctx.shadowColor='#884400';ctx.shadowBlur=10;ctx.fillStyle='rgba(40,14,0,.9)';ctx.beginPath();ctx.roundRect(W/2+150,446,160,48,9);ctx.fill();
+  ctx.strokeStyle='rgba(200,100,30,.45)';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(W/2+150,446,160,48,9);ctx.stroke();
+  ctx.fillStyle='#ffcc88';ctx.font='bold 10px Orbitron';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('✕ EXIT APP',W/2+230,470);ctx.restore();
 }
 
 function drawHome(){
@@ -4754,17 +4768,10 @@ function drawHome(){
   ctx.fillStyle='#ddaaff';ctx.font='bold 11px Orbitron';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🎨 SHOP',W-66,32);ctx.restore();
 
   ctx.save();ctx.shadowColor='#FFD700';ctx.shadowBlur=14;ctx.fillStyle='#FFD700';ctx.font='bold 18px Orbitron';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText('◉ '+totalCoins,14,36);ctx.restore();
-  ctx.fillStyle='rgba(0,160,80,.9)';ctx.beginPath();ctx.roundRect(10,68,95,38,6);ctx.fill();
-  ctx.fillStyle='#aaffcc';ctx.font='bold 9px Orbitron';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('SAVE',57,88);
-  ctx.fillStyle='rgba(180,20,20,.9)';ctx.beginPath();ctx.roundRect(112,68,95,38,6);ctx.fill();ctx.fillStyle='#ffaaaa';ctx.fillText('RESET',160,88);
-  // EXIT button
-  ctx.save();ctx.fillStyle='rgba(60,0,0,.9)';ctx.beginPath();ctx.roundRect(215,68,95,38,6);ctx.fill();
-  ctx.strokeStyle='rgba(255,80,80,.35)';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(215,68,95,38,6);ctx.stroke();
-  ctx.fillStyle='#ff8888';ctx.font='bold 9px Orbitron';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('✕ EXIT',262,88);ctx.restore();
-  // SETTINGS button
-  ctx.save();ctx.shadowColor='#00aaff';ctx.shadowBlur=10;ctx.fillStyle='rgba(0,20,60,.9)';ctx.beginPath();ctx.roundRect(318,68,155,38,6);ctx.fill();
-  ctx.strokeStyle='rgba(0,180,255,.4)';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(318,68,155,38,6);ctx.stroke();
-  ctx.fillStyle='#88ccff';ctx.font='bold 9px Orbitron';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('⚙ SETTINGS',395,88);ctx.restore();
+  // Single SETTINGS button — sits right of coin counter, clear of title text
+  ctx.save();ctx.shadowColor='#00aaff';ctx.shadowBlur=12;ctx.fillStyle='rgba(0,18,55,.92)';ctx.beginPath();ctx.roundRect(8,54,138,34,7);ctx.fill();
+  ctx.strokeStyle='rgba(0,180,255,.5)';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(8,54,138,34,7);ctx.stroke();
+  ctx.fillStyle='#88ccff';ctx.font='bold 10px Orbitron';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('⚙ SETTINGS',77,71);ctx.restore();
 
   // Best scores under mode buttons
   ctx.save();

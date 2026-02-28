@@ -25,6 +25,8 @@ if %errorlevel% neq 0 ( echo  Icon creation failed. & pause & exit /b 1 )
 echo.
 echo  Step 3/3 - Building installer...
 set CSC_IDENTITY_AUTO_DISCOVERY=false
+set WIN_CSC_LINK=
+set WIN_CSC_KEY_PASSWORD=
 call npm run dist
 if %errorlevel% neq 0 ( echo  Build failed. & pause & exit /b 1 )
 

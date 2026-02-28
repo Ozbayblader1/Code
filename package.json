@@ -17,7 +17,8 @@
     "directories": { "output": "dist" },
     "win": {
       "target": [{ "target": "nsis", "arch": ["x64"] }],
-      "icon": "icon.png"
+      "icon": "icon.png",
+      "signAndEditExecutable": false
     },
     "files": [
       "main.js",
