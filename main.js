@@ -7,7 +7,7 @@ function createWindow() {
     height: 650,
     minWidth: 500,
     minHeight: 380,
-    title: 'NEON PLATFORMER',
+    title: 'NEON DASH ULTRA',
     backgroundColor: '#000011',
     autoHideMenuBar: true,
     icon: path.join(__dirname, 'icon.png'),
@@ -18,12 +18,17 @@ function createWindow() {
   });
 
   win.setMenu(null);
-  win.loadFile('platformer.html');
+  // Load the app-optimised shell (no PWA manifest, Electron feature flags)
+  win.loadFile('platformer-app.html');
 
   // F11 = fullscreen toggle
   win.webContents.on('before-input-event', (_e, input) => {
     if (input.type === 'keyDown' && input.key === 'F11') {
       win.setFullScreen(!win.isFullScreen());
+    }
+    // F12 = DevTools (handy during development)
+    if (input.type === 'keyDown' && input.key === 'F12') {
+      win.webContents.toggleDevTools();
     }
   });
 }

@@ -1,162 +1,3 @@
-<!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>NEON PLATFORMER</title>
-<link rel="manifest" href="manifest.json">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap');
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{width:100%;height:100%;overflow:hidden;touch-action:none;}
-body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#000;font-family:'Orbitron',monospace;}
-
-body::before{
-  content:'';position:fixed;inset:0;
-  background:
-    radial-gradient(ellipse 60% 80% at 15% 50%,rgba(80,0,140,.5) 0,transparent 70%),
-    radial-gradient(ellipse 50% 70% at 85% 20%,rgba(0,60,180,.4) 0,transparent 70%),
-    radial-gradient(ellipse 40% 60% at 50% 90%,rgba(0,0,60,.6) 0,transparent 70%);
-  pointer-events:none;animation:bgPulse 8s ease-in-out infinite alternate;
-}
-@keyframes bgPulse{0%{opacity:.7;}100%{opacity:1;}}
-
-/* ── Responsive wrapper — scales the 900×580 game to fit any screen ── */
-#gw{
-  position:relative;
-  width:900px;height:580px;
-  transform-origin:center center;
-}
-#gc{
-  position:relative;width:900px;height:580px;
-  border:1px solid rgba(0,200,255,.3);
-  overflow:hidden;
-  box-shadow:
-    0 0 0 1px rgba(0,100,200,.2),
-    0 0 60px rgba(0,120,255,.4),
-    0 0 120px rgba(80,0,200,.25),
-    0 0 240px rgba(0,0,100,.3),
-    inset 0 0 80px rgba(0,0,0,.8),
-    inset 0 1px 0 rgba(255,255,255,.05);
-}
-#gc::after{
-  content:'';position:absolute;inset:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.025) 3px,rgba(0,0,0,.025) 4px);
-  pointer-events:none;z-index:50;
-}
-#gc::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 50% 50%,transparent 60%,rgba(0,0,0,.45) 100%);
-  pointer-events:none;z-index:51;
-}
-canvas{display:block;}
-#notif{
-  position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%) scale(0);
-  background:rgba(0,5,20,.97);
-  border:1px solid #00ffff;
-  color:#00ffff;font-size:12px;padding:12px 26px;border-radius:6px;
-  text-align:center;z-index:100;pointer-events:none;
-  transition:transform .18s cubic-bezier(.34,1.56,.64,1);
-  text-shadow:0 0 20px currentColor;
-  letter-spacing:2px;
-  box-shadow:0 0 30px rgba(0,255,255,.3),inset 0 0 20px rgba(0,255,255,.05);
-}
-#notif.show{transform:translate(-50%,-50%) scale(1);}
-#mBtn{
-  position:absolute;bottom:8px;right:8px;
-  background:rgba(0,10,30,.9);
-  border:1px solid rgba(0,200,255,.3);
-  color:#00ffff;font-size:8px;font-family:'Orbitron',monospace;
-  padding:4px 8px;border-radius:3px;cursor:pointer;z-index:60;
-  transition:all .2s;letter-spacing:1px;
-}
-#mBtn:hover{border-color:#00ffff;box-shadow:0 0 10px rgba(0,255,255,.3);}
-#abilityBar{
-  position:absolute;bottom:30px;left:50%;
-  transform:translateX(-50%);
-  display:flex;gap:6px;z-index:60;pointer-events:none;
-}
-
-/* ── Mobile touch D-pad ── */
-#dpad{
-  display:none;
-  position:absolute;bottom:18px;left:16px;
-  z-index:200;user-select:none;
-}
-#dpad .row{display:flex;gap:6px;justify-content:center;}
-.dkey{
-  width:64px;height:64px;
-  background:rgba(0,180,255,.13);
-  border:2px solid rgba(0,200,255,.45);
-  border-radius:14px;
-  color:rgba(0,220,255,.9);
-  font-size:24px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;
-  box-shadow:0 0 14px rgba(0,200,255,.18),inset 0 0 10px rgba(0,200,255,.06);
-  transition:background .08s,box-shadow .08s;
-  touch-action:none;
-}
-.dkey:active,.dkey.pressed{
-  background:rgba(0,200,255,.32);
-  box-shadow:0 0 24px rgba(0,220,255,.5),inset 0 0 16px rgba(0,200,255,.18);
-}
-/* ── Mobile right-side action buttons ── */
-#apad{
-  display:none;
-  position:absolute;bottom:18px;right:16px;
-  z-index:200;user-select:none;
-  flex-direction:column;gap:8px;align-items:flex-end;
-}
-#btnJump{
-  width:78px;height:78px;border-radius:50%;
-  background:rgba(0,255,120,.14);
-  border:2px solid rgba(0,255,120,.5);
-  color:rgba(0,255,160,.95);font-size:26px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;touch-action:none;
-  box-shadow:0 0 18px rgba(0,255,120,.2);
-  transition:background .08s;
-}
-#btnJump:active,#btnJump.pressed{background:rgba(0,255,120,.38);box-shadow:0 0 30px rgba(0,255,120,.5);}
-#btnAbility{
-  width:60px;height:60px;border-radius:50%;
-  background:rgba(200,100,255,.14);
-  border:2px solid rgba(200,100,255,.5);
-  color:rgba(220,140,255,.95);font-size:20px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;touch-action:none;
-  box-shadow:0 0 14px rgba(200,100,255,.2);
-  transition:background .08s;
-}
-#btnAbility:active,#btnAbility.pressed{background:rgba(200,100,255,.35);box-shadow:0 0 28px rgba(200,100,255,.5);}
-/* Touch controls start hidden — shown via JS on first screen touch */
-</style>
-</head>
-<body>
-<div id="gw">
-<div id="gc">
-  <canvas id="cv" width="900" height="580"></canvas>
-  <div id="notif"></div>
-  <button id="mBtn">🎵 ON</button>
-  <div id="abilityBar"></div>
-
-  <!-- Mobile D-pad (left) — Left and Right only -->
-  <div id="dpad">
-    <div class="row">
-      <div class="dkey" id="btnLeft">◀</div>
-      <div class="dkey" id="btnRight">▶</div>
-    </div>
-  </div>
-
-  <!-- Mobile action buttons (right) -->
-  <div id="apad">
-    <div id="btnAbility">⚡</div>
-    <div id="btnJump">▲</div>
-  </div>
-</div>
-</div>
-<script>
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
 const W=900,H=580;
 
@@ -289,7 +130,7 @@ cv.addEventListener('touchstart',e=>{
 //  AUDIO ENGINE (enhanced with SFX)
 // ══════════════════════════════════════════
 let actx=null,musicOn=true,musicNodes=[],beatInterval=null,drBufs=null;
-function initAudio(){if(!actx){actx=new(window.AudioContext||window.webkitAudioContext)();}if(actx.state==='suspended')actx.resume();}
+function initAudio(){if(!actx){const hint=(window.PLATFORM_CFG&&window.PLATFORM_CFG.audioLatencyHint)||'interactive';actx=new(window.AudioContext||window.webkitAudioContext)({latencyHint:hint});}if(actx.state==='suspended')actx.resume();}
 function stopMusic(){musicNodes.forEach(n=>{try{n.stop();}catch(e){}});musicNodes=[];drBufs=null;if(beatInterval){clearInterval(beatInterval);beatInterval=null;}}
 
 // SFX system
@@ -3536,7 +3377,7 @@ function update(){
   prevUp=keys['arrowup'];prevW=keys['w'];
 
   trailTmr++;if(trailTmr%2===0&&(Math.abs(player.velX)>0.5||Math.abs(player.velY)>0.5))spawnTrail();
-  for(let i=particles.length-1;i>=0;i--){particles[i].update();if(particles[i].life<=0)particles.splice(i,1);}if(particles.length>480)particles.splice(0,particles.length-480);
+  for(let i=particles.length-1;i>=0;i--){particles[i].update();if(particles[i].life<=0)particles.splice(i,1);}const _pMax=(window.PLATFORM_CFG&&window.PLATFORM_CFG.particleMax)||480;if(particles.length>_pMax)particles.splice(0,particles.length-_pMax);
 
   const activeCoinList=[...coins];if(inSecretRoom&&currentSecretRoomData)activeCoinList.push(...currentSecretRoomData.coins);
   activeCoinList.forEach(c=>{
@@ -5961,6 +5802,3 @@ function drawEditor(){
 // ══════════════════════════════════════════
 function loop(){update();draw();requestAnimationFrame(loop);}
 loop();
-</script>
-</body>
-</html>

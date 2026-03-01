@@ -1,10 +1,14 @@
 {
-  "name": "NEON PLATFORMER",
-  "short_name": "NEON PLT",
-  "description": "A neon platformer game",
-  "start_url": "platformer.html",
-  "display": "standalone",
+  "name": "NEON DASH ULTRA",
+  "short_name": "NEON DASH",
+  "description": "A neon-soaked browser platformer — play free or install offline",
+  "start_url": "platformer-web.html",
+  "display": "fullscreen",
   "background_color": "#000011",
   "theme_color": "#00ccff",
-  "orientation": "landscape"
+  "orientation": "landscape",
+  "icons": [
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["games"]
 }
